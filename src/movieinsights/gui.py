@@ -5,12 +5,16 @@
 import tkinter as tk
 from tkinter import messagebox
 
+# pages 默认值
+pages = 3
+
 def get_pages():
+    global pages
     response = messagebox.askyesno("Bye~", "好的，马上开始爬虫")
     if response:
-        pages = entry.get() # & pages: str --> int
+        pages = int(entry.get()) # & pages: str --> int
         window.destroy()
-        return pages
+        
 
 def init_gui():
     global window, label, entry, button, pages
