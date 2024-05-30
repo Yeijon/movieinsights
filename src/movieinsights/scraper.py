@@ -84,7 +84,7 @@ class Douban_MovieScraper:
             if result:
                print(" | ".join(result))
             # TEST
-            # BUG: 还是主键的问题，主键没有实现递增
+            # BUG: 还是主键的问题，主键没有实现递增 FINISH
             storeData(result)
             
 

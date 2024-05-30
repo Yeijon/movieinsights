@@ -1,5 +1,7 @@
 # 自定义
 learn_by_exercise.py 
+share/
+Demo.sqlite
 # 废弃的文件
 spider.py
 

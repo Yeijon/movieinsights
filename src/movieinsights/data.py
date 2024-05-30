@@ -1,3 +1,7 @@
+"""
+* 用来连接数据库的类
+"""
+
 import sqlite3
 import sys
 
