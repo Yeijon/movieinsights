@@ -21,10 +21,16 @@ def main():
   # 执行爬虫
   myscraper = Douban_MovieScraper(header=config['header'], base_url="https://movie.douban.com/top250",start_page=0, end_page=pages)
   myscraper.run_scraper()
+  
   # 绘图
-  with open('graph.py', 'r') as f:
-    exec(f.read())
-    exec(f.close()) 
+  try: 
+    with open('graph.py', 'r', encoding='utf-8') as f:
+      exec(f.read())
+      exec(f.close())
+  except FileNotFoundError as e:
+    log = logger.init_console_logger()
+    log.debug(f"File not found! Can't draw the graph.")
+    log.exception(e)
 
   return None
 
