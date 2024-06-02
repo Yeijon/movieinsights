@@ -11,6 +11,19 @@ import json
 
 from data import database # 导入data.py中的类，这个文件名字取得不是很好，感觉容易误会成库
 import logger
+from utils import get_DB_PATH
+
+DB_PATH = get_DB_PATH()
+
+# TODO: 完成数据库连接 FINISH
+def storeData(result:list) -> None :
+    # ! 已经自建了数据库，也许后面会考虑添加创建数据库 在 xxx/share 中
+    # TODO: 变成常量
+    mydatabase = database(DB_PATH) 
+    mydatabase.insert(datalist=result)
+    mydatabase.close()
+    return None
+
 
 class Douban_MovieScraper:
     def __init__(self, header,  base_url, start_page, end_page, step=25):
@@ -121,17 +134,6 @@ class Douban_MovieScraper:
             soup = bs(html_content, 'lxml')
             self.dissect_html(soup)
 
-# TODO: 完成数据库连接 FINISH
-def storeData(result:list) -> None :
-    # ! 已经自建了数据库，也许后面会考虑添加创建数据库 在 xxx/share 中
-    # & 确定数据库文件的位置
-    script_dir = os.path.dirname(__file__)
-    db_path = os.path.join(script_dir, '../../share/Demo.sqlite')
-    
-    mydatabase = database(db_path) 
-    mydatabase.insert(datalist=result)
-    mydatabase.close()
-    return None
 
 # TODO: 编写爬虫电影短片的类
 class Special_MovieScraper:
@@ -142,11 +144,7 @@ class Special_MovieScraper:
 
     # * 是否存在数据库中，从命令行传过来
     def fatch_data(self):
-        
-        script_dir = os.path.dirname(__file__)
-        db_path = os.path.join(script_dir, '../../share/Demo.sqlite')
-
-        mydatabase = database(db_path)
+        mydatabase = database(DB_PATH)
         result = mydatabase.select(name=self.movie_name)
 
         # TODO: 待后续结合命令行，输出到命令行
@@ -157,9 +155,9 @@ class Special_MovieScraper:
     def generate_url(self):
         base_url = self.fatch_data()
         # 抓取前n页的评论，每条20条评论
-        n = 25
+        n = 2
 
-        return [self.base_url + f"comments?start={page * 20}&limit=20&status=P&sort=new_score" \
+        return [base_url + f"comments?start={page * 20}&limit=20&status=P&sort=new_score" \
                 for page in range(0, n)]
 
     def request_web(self, url):
@@ -167,7 +165,10 @@ class Special_MovieScraper:
             response = requests.get(url=url, headers=self.headers)
             if response.status_code == 200:
                 return response.text
-        except requests.RequestException:
+        except requests.RequestException as e:
+            log = logger.init_logger()
+            log.error("Error requesting web.")
+            log.exception(e)
             return "Errors"
     
     def parse_comment(self, comment) -> str:
@@ -184,7 +185,7 @@ class Special_MovieScraper:
         comments = soup.find_all(class_='comment')
         for comment in comments:
             result = self.parse_comment(comment)
-            # TODO: 编写 zhipu ai 的相关代码
+            # TODO: 编写 zhipu ai 的相关代码 FINISH
             if result:
                 data2jsonl(result)
         return None

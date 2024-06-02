@@ -12,7 +12,7 @@ def init_console_logger():
 
 def init_logger():
     log = logging.getLogger(__name__)
-    f_format = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    f_format = logging.Formatter("\n[%(asctime)s] - %(name)s - %(levelname)s - %(message)s")
 
     handler = logging.FileHandler('record.log', encoding='utf-8')
     handler.setLevel(logging.NOTSET)

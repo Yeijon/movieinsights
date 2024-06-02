@@ -24,7 +24,7 @@ def batch_task(file_path:str, api_key:str) -> None:
     create = client.batches.create(
         input_file_id=result.id,
         endpoint="/v4/chat/completions",
-        completion_window="24h", # & 只有这个选项，会非常慢，得排队
+        completion_window="24h", # & 只有这个选项，会非常慢，得排队，测试结果过了一个晚上完成
         metadata={
             "description": "Sentiment analysis on movie reviews",
         }

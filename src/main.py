@@ -2,15 +2,17 @@ import json
 
 from scraper import *
 from gui import init_gui
-
-
-def load_config():
-  with open('config.json', 'r') as f:
-    config = json.load(f)
-    return config
-
+import graph
+from data import *
+from utils import load_config, get_DB_PATH
 
 def main():
+
+  # 清除数据库中的缓存
+  # BUG: UnboundLocalError: local variable 'database' referenced before assignment
+  """ db = database("../../share/Demo.sqlite")
+  db.clean_cache()
+  db.close() """
 
   # TODO: 调用gui / 加载配置文件 / 执行爬虫 / 将数据导入数据库 / 绘图
   # 调用gui
@@ -23,14 +25,8 @@ def main():
   myscraper.run_scraper()
   
   # 绘图
-  try: 
-    with open('graph.py', 'r', encoding='utf-8') as f:
-      exec(f.read())
-      exec(f.close())
-  except FileNotFoundError as e:
-    log = logger.init_console_logger()
-    log.debug(f"File not found! Can't draw the graph.")
-    log.exception(e)
+  db_path = get_DB_PATH()
+  graph.process_movie_data(db_path)
 
   return None
 

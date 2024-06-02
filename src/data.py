@@ -30,13 +30,26 @@ class database():
     log = logger.init_console_logger()
     cur = self.con.cursor()
     try:
-      cur.execute("SELECT * FROM movie WHERE name=?", (name))
+      cur.execute("SELECT * FROM movie WHERE name=?", (name,))
       result = cur.fetchone() # & fetchone() 返回一个 tuple
       return result
     except ValueError as e:
       log.error(f"ERROR! Selection failed")
       log.exception(e)
       return None
+
+  def clean_cache(self): 
+    log = logger.init_console_logger()
+    cur = self.con.cursor()
+    try:
+      cur.execute("DELETE FROM movie")
+      self.con.commit()
+    except sqlite3.OperationalError as e:
+      log.error(f"ERROR! Clean cache failed: {e}")
+      sys.exit()
+    except ValueError as e:
+      log.error(f"ERROR! Clean cache failed: {e}")
+      sys.exit()
 
   def close(self):
     self.con.close()
