@@ -2,6 +2,8 @@
 learn_by_exercise.py 
 share/
 Demo.sqlite
+config.json
+*.jsonl
 # 废弃的文件
 spider.py
 

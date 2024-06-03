@@ -5,10 +5,12 @@
 from zhipuai import ZhipuAI
 
 import logger
+from utils import load_config
 
 # TODO： 命令行交互
 # & 填写zhipu ai的api key 在config.json中
-APIKEY = "your_api_key"
+config = load_config()
+APIKEY = config['zhipu_API_KEY']
 
 
 # 上传文件 - 创建Batch任务 - 获取结果
@@ -16,7 +18,7 @@ def batch_task(file_path:str, api_key:str) -> None:
     client = ZhipuAI(api_key)
     # 上传文件，获取id
     result = client.files.create(
-        file=open(file_path, 'rb'),
+        file=open(file='comment.jsonl', mode='rb'),
         purpose="batch"
     )
     
@@ -33,14 +35,18 @@ def batch_task(file_path:str, api_key:str) -> None:
     batch_job = client.batches.retrieve(result.id)
 
     log = logger.init_logger()
+    log2 = logger.init_console_logger()
     if batch_job.status == "completed":
         # 下载结果
         content = client.files.content(batch_job.output_file_id)
         content.write_to_file("output.jsonl")
         log.info(f"Batch job completed. Results saved to output.jsonl")
     elif batch_job.status == "in_progress":
-        log = logger.init_console_logger()
-        log.info(f"Batch job is in progress. Please wait.....(withing 24h)")
+        log2.info(f"Batch job is in progress. Please wait.....(withing 24h)")
+    elif batch_job.status == "failed":
+        log2.error(f"Batch job failed: 文件未通过验证")
+    elif batch_job.status == "expired":
+        log2.debug(f"Batch job expired: Batch任务未在24小时内完成")
     return None
 
 
