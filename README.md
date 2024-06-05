@@ -56,13 +56,28 @@ TODO:
 
 命令行接口的设计
 
-```bash
-# 查询
+```shell
+# 查询数据库中是否有该电影, 若存在，使用--requestAI 选项将自动使用AI进行标注并生成词云图
+python main.py --requestAI search "your movie"
+# 返回：
+"YES! Here is some information about movie: xxx"
+# 调用rich库编写markdown形式的
+- Movie:
+- Description:
+- Rating:
+- Country:
+- Year:
+# --requestAI
+显示是否完成
+
+# 执行爬虫得到结果，使用--analyze 将会把爬取得到的结果进行数据分析
+python main.py --analyze scrape
+
 ```
 
 
 
-
+加入心愿单中
 
 
 
@@ -71,7 +86,7 @@ TEST:
   - [x] 成功爬虫，打印出来测试成功
   - [x] 连接数据库并存入数据库中
 - [x] 测试爬取数据并写入对应的jsonl文件中
-- [ ] 调用zhipu API是否顺利？
+- [x] 调用zhipu API是否顺利？ 历经诸多磨难，终于成功QAQ
 - [ ] 词云图的测试
 
 参考资料：

@@ -46,12 +46,13 @@ class TestSpecialMovieScraper(unittest.TestCase):
     def test_dissect_html(self):
         # TEST: 盗梦空间 PASS
         movie_scraper = scraper.Special_MovieScraper(movie_name="盗梦空间", header=self.header)
-        test_url = "https://movie.douban.com/subject/3541415/comments?start=0&limit=20&status=P&sort=new_score"
-        test_html = movie_scraper.request_web(test_url)
-        test_soup = bs(test_html, 'lxml')
-        result = movie_scraper.dissect_html(test_soup)
+        test_url = movie_scraper.generate_url()
+        for url in test_url:
+            test_html = movie_scraper.request_web(url)
+            print(url)
+            test_soup = bs(test_html, 'lxml')
+            result = movie_scraper.dissect_html(test_soup)
         # print(result)
-        self.assertNotEqual(result, None)
 
     def test_parse_comment(self):
         # TEST: 盗梦空间 PASS

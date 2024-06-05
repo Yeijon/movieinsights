@@ -12,6 +12,9 @@ import json
 from data import database # 导入data.py中的类，这个文件名字取得不是很好，感觉容易误会成库
 import logger
 from utils import get_DB_PATH
+from main import ID_NUM
+
+ID_NUM = ID_NUM
 
 DB_PATH = get_DB_PATH()
 
@@ -135,7 +138,7 @@ class Douban_MovieScraper:
             self.dissect_html(soup)
 
 
-# TODO: 编写爬虫电影短片的类
+# TODO: 编写爬虫电影短片的类 FINISH
 class Special_MovieScraper:
     def __init__(self, movie_name, header):
         # TODO: 从命令行传过来
@@ -154,8 +157,8 @@ class Special_MovieScraper:
 
     def generate_url(self):
         base_url = self.fatch_data()
-        # 抓取前n页的评论，每条20条评论
-        n = 2
+        # 抓取前n页的评论，每页20条评论
+        n = 5
 
         return [base_url + f"comments?start={page * 20}&limit=20&status=P&sort=new_score" \
                 for page in range(0, n)]
@@ -192,7 +195,11 @@ class Special_MovieScraper:
             result = self.parse_comment(comment)
             # TODO: 编写 zhipu ai 的相关代码 FINISH
             if result:
-                data2jsonl(result)
+                # BUG: 检查网络问题 FINISH
+                #with open ('test_comment.txt', 'a', encoding='utf-8') as f:
+                #    f.write(result)
+                #data2jsonl(result)
+                data2txt(result)
         return None
 
 
@@ -206,7 +213,8 @@ class Special_MovieScraper:
                 self.dissect_html(soup)
 
 
-# TEST 
+# TEST FINISH 
+# ! 由于zhipu_batch.py中调用出现问题，这个函数暂时弃用
 def data2jsonl(comment_text: str) -> None:
     """
     将评论数据存储为jsonl格式
@@ -238,20 +246,62 @@ def data2jsonl(comment_text: str) -> None:
         }
     }
     """
-    global idn
-    idn = 0
-    idn += 1
+    global ID_NUM
+    ID_NUM += 1
     # BUG: data存在格式问题
     data = {
-        "custon_id": f"request-{idn}",
+        "custon_id": f"request-{ID_NUM}",
         "method": "POST",
         "url": "/v4/chat/completions",
         "body": {
             "model": "glm-4",
             "messages": [
                 {"role": "system", "content": "你是一个针对电影评论的意图分类器"},
-                {"role": "user", "content": 
-                f"""
+                {"role": "user", "content":
+                "# 任务：对以下用户的电影短评评论进行观影情绪分类和观影评价标注，只输出结果" +
+                "- 评论：review = \"情节相当悬疑，叙事很流畅，导演功力深厚，真不愧是诺兰，简直就是完美之作。\"" +
+                "- 输出格式：" +
+                "{\"情绪分类标签\": \"愉悦 赞赏\", \"观影评价标注\": \"紧扣剧情 叙事流畅 大导演\"}" +
+                f"# 评论：review = \"{comment_text}\"" +
+                "# 输出格式：" +
+                "{\"情绪分类标签\": \" \", \"观影评价标注\": \" \"}"
+                }
+            ]
+        },
+        "temperature": 0.1
+    }
+
+    log = logger.init_logger()
+    try:
+        # ! 这里记得修改以下路径
+        with open('test_comment3.jsonl', 'a', encoding='utf-8') as f:
+            # 依照jsonl格式写入数据
+            json.dump(data, f, ensure_ascii=False)
+            f.write('\n')
+            log.info(f"Data has been written to test_comment.jsonl.")
+        return "Great!"
+    except Exception as e:
+        log = logger.init_console_logger()
+        log.error(f"Error writing data to comment.jsonl.")
+        log.exception(e)
+        return None
+    
+# * data 格式：
+""" 1
+                "# 任务：对以下用户的电影短评评论进行观影情绪分类和观影评价标注，只输出结果" +
+                "# 观影情绪分类词建议：钦佩、崇拜、欣赏、娱乐、焦虑、敬畏、尴尬、厌倦、冷静、困惑、渴望、厌恶、痛苦、着迷、嫉妒、兴奋、恐惧、痛恨、有趣、快乐、怀旧、浪漫、悲伤、满意、性欲、同情、满足、愉悦等。" +
+                "# 观影评价标注选词建议：导演：执导得当、导演功力深厚、导演手法独特；演员：演技精湛、表演自然、角色诠释到位；镜头：镜头运用巧妙、镜头切换流畅、镜头构图新颖；摄影：摄影角度独特、画面质感出色、摄影手法精湛；剧情：剧情紧凑、情节跌宕起伏、剧情发展合理；线索：线索设计巧妙、线索铺陈自然、线索逻辑清晰；环境：环境营造恰到好处、场景布置精心、环境氛围感强烈；色彩：色彩搭配和谐、色彩运用巧妙、色彩表现丰富；光线：光线处理恰到好处、光线效果炫目、光线照射角度合理；视听语言：视听语言独具匠心、声音效果震撼、音乐配合恰到好处；道具作用：道具运用恰到好处、道具设计别具匠心、道具作用明显；转场：转场处理流畅、转场设计巧妙、转场效果引人入胜；剪辑：剪辑节奏紧凑、剪辑处理精湛、剪辑效果出色 等等。" +
+                "# 例如：" +
+                "- 评论：review = \"情节相当悬疑，叙事很流畅，导演功力深厚，真不愧是诺兰，简直就是完美之作。\"" +
+                "- 输出格式：" +
+                "{\"情绪分类标签\": \"愉悦 赞赏\", \"观影评价标注\": \"紧扣剧情 叙事流畅 大导演\"}" +
+                f"# 评论：review = \"{comment_text}\"" +
+                "# 输出格式：" +
+                "{\"情绪分类标签\": \" \", \"观影评价标注\": \" \"}"
+"""
+
+""" 2
+f
                 # 任务：对以下用户的电影短评评论进行观影情绪分类和观影评价标注，只输出结果。 \
                 # 观影情绪分类词建议：钦佩、崇拜、欣赏、娱乐、焦虑、敬畏、尴尬、厌倦、冷静、困惑、渴望、厌恶、痛苦、着迷、嫉妒、兴奋、恐惧、痛恨、有趣、快乐、怀旧、浪漫、悲伤、满意、性欲、同情、满足、愉悦等。 \
                 # 观影评价标注选词建议：导演：执导得当、导演功力深厚、导演手法独特；演员：演技精湛、表演自然、角色诠释到位；镜头：镜头运用巧妙、镜头切换流畅、镜头构图新颖；摄影：摄影角度独特、画面质感出色、摄影手法精湛；剧情：剧情紧凑、情节跌宕起伏、剧情发展合理；线索：线索设计巧妙、线索铺陈自然、线索逻辑清晰；环境：环境营造恰到好处、场景布置精心、环境氛围感强烈；色彩：色彩搭配和谐、色彩运用巧妙、色彩表现丰富；光线：光线处理恰到好处、光线效果炫目、光线照射角度合理；视听语言：视听语言独具匠心、声音效果震撼、音乐配合恰到好处；道具作用：道具运用恰到好处、道具设计别具匠心、道具作用明显；转场：转场处理流畅、转场设计巧妙、转场效果引人入胜；剪辑：剪辑节奏紧凑、剪辑处理精湛、剪辑效果出色 等等。 \
@@ -268,23 +318,15 @@ def data2jsonl(comment_text: str) -> None:
                     \"情绪分类标签\": \" \", \
                     \"观影评价标注\": \" \" \
                 }}
-                """
-                }
-            ]
-        },
-    }
+                
+"""
 
-    log = logger.init_logger()
-    try:
-        with open('test_comment.jsonl', 'w', encoding='utf-8') as f:
-            # 依照jsonl格式写入数据
-            json.dump(data, f, ensure_ascii=False)
-            
-        log.info(f"Data has been written to comment.jsonl.")
-        return "Great!"
-    except Exception as e:
-        log = logger.init_console_logger()
-        log.error(f"Error writing data to comment.jsonl.")
-        log.exception(e)
-        return None
-    
+def data2txt(comment_text: str) -> None:
+    """
+    将评论数据存储为txt格式
+    """
+    with open('test_comment.txt', 'a', encoding='utf-8') as f:
+        f.write(comment_text)
+        f.write('\n')
+        f.close()
+    return None
