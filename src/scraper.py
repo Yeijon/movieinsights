@@ -12,9 +12,9 @@ import json
 from data import database # 导入data.py中的类，这个文件名字取得不是很好，感觉容易误会成库
 import logger
 from utils import get_DB_PATH
-from main import ID_NUM
+#from main import ID_NUM
 
-ID_NUM = ID_NUM
+#ID_NUM = ID_NUM
 
 DB_PATH = get_DB_PATH()
 
@@ -199,7 +199,7 @@ class Special_MovieScraper:
                 #with open ('test_comment.txt', 'a', encoding='utf-8') as f:
                 #    f.write(result)
                 #data2jsonl(result)
-                data2txt(result)
+                data2txt(result, self.movie_name)
         return None
 
 
@@ -321,11 +321,11 @@ f
                 
 """
 
-def data2txt(comment_text: str) -> None:
+def data2txt(comment_text: str, movie_name: str) -> None:
     """
     将评论数据存储为txt格式
     """
-    with open('test_comment.txt', 'a', encoding='utf-8') as f:
+    with open(f'{movie_name}_comment.txt', 'a', encoding='utf-8') as f:
         f.write(comment_text)
         f.write('\n')
         f.close()

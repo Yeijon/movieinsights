@@ -49,7 +49,7 @@ def draw_wordcloud(movie_name:str):
     min_font_size=20
   )
 
-  with open('test_comment.txt', 'r', encoding='utf-8') as f:
+  with open(f'{movie_name}_comment.txt', 'r', encoding='utf-8') as f:
     comment = f.read()
     words = jieba.cut(comment, cut_all=True)
     wc.generate(' '.join(words))

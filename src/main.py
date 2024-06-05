@@ -1,6 +1,6 @@
 from rich.console import Console
-from rich.markdown import Markdown
 import click
+from typing import Optional
 
 from scraper import *
 from gui import init_gui
@@ -23,7 +23,7 @@ ID_NUM = 0
 def main(ctx):
 
   if ctx.invoked_subcommand is None:
-    return run()
+    return run(analyze=True)
 
 # *-------------------------- 核心功能1：执行爬虫爬取豆瓣电影top250 -------------------------- #
 @main.command(help="Execute a crawler to crawl the top 250 movies on Douban")
@@ -31,6 +31,7 @@ def main(ctx):
   '--analyze',
   type=bool,
   default=True,
+  required=True,
   help="Whether to analyze the data and generate Graphs for analysis"
 )
 @click.pass_context
@@ -57,18 +58,18 @@ def run(analyze:bool):
 
   return None
 
-# ------------------------- 核心功能2：查询电影，使用AI自动标注和生成词云图 ------------------------ #
+# *------------------------- 核心功能2：查询电影，使用AI自动标注和生成词云图 ------------------------* #
 @main.command(help="Query whether the movie exists in the database, if exists, return the information and generate a word cloud diagram.")
 @click.option(
   '--requestAI',
   type=bool,
   default=False,
+  required=False,
   help="AI will be automatically used to annotate and generate word cloud diagrams. (Model: GLM-4[Batch API -- zhipu.ai])"
 )
-@click.argument('movie_name', type=click.STRING)
-@click.pass_context
-
-def search(movie_name:str, requestai:str):
+@click.argument('movie_name', type=str, required=True, nargs=1)
+#@click.pass_context
+def search(movie_name:str, requestai: Optional[bool] = False):
   # TODO: 从数据库中查询是否存在该电影
   mydatabase = database(get_DB_PATH())
   result = mydatabase.select(name=movie_name)
@@ -95,7 +96,14 @@ def search(movie_name:str, requestai:str):
 
       #batch_download(APIKEY, batch.output_file_id)
     else:
-      # TODO： 从test_comment.txt中提取，生成词云图
+      # 创建该电影txt文件
+      with open(f'{movie_name}_comment.txt', 'w', encoding='utf-8') as f:
+        f.write(f'{movie_name}的评论\n')
+        f.close()
+      mymoviescraper = Special_MovieScraper(movie_name=movie_name, header=config['header'])
+      mymoviescraper.run_scraper()
+
+      # TODO： 从test_comment.txt中提取，生成词云图 FINISH
       draw_wordcloud(movie_name)
       return 1
   else:
