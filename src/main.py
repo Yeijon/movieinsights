@@ -31,10 +31,9 @@ def main(ctx):
   '--analyze',
   type=bool,
   default=True,
-  required=True,
+  required=False,
   help="Whether to analyze the data and generate Graphs for analysis"
 )
-@click.pass_context
 def run(analyze:bool):
   # 清除数据库中的缓存
   # BUG: UnboundLocalError: local variable 'database' referenced before assignment
@@ -56,6 +55,13 @@ def run(analyze:bool):
     db_path = get_DB_PATH()
     graph.process_movie_data(db_path)
 
+  return None
+
+# * 单独进行绘图的命令
+@main.command(help="Generate Graphs for analysis")
+def draw():
+  db_path = get_DB_PATH()
+  graph.process_movie_data(db_path)
   return None
 
 # *------------------------- 核心功能2：查询电影，使用AI自动标注和生成词云图 ------------------------* #
@@ -97,7 +103,7 @@ def search(movie_name:str, requestai: Optional[bool] = False):
       #batch_download(APIKEY, batch.output_file_id)
     else:
       # 创建该电影txt文件
-      with open(f'{movie_name}_comment.txt', 'w', encoding='utf-8') as f:
+      with open(f'../share/{movie_name}_comment.txt', 'w', encoding='utf-8') as f:
         f.write(f'{movie_name}的评论\n')
         f.close()
       mymoviescraper = Special_MovieScraper(movie_name=movie_name, header=config['header'])

@@ -325,7 +325,7 @@ def data2txt(comment_text: str, movie_name: str) -> None:
     """
     将评论数据存储为txt格式
     """
-    with open(f'{movie_name}_comment.txt', 'a', encoding='utf-8') as f:
+    with open(f'../share/{movie_name}_comment.txt', 'a', encoding='utf-8') as f:
         f.write(comment_text)
         f.write('\n')
         f.close()
