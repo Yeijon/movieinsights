@@ -11,7 +11,7 @@ import json
 
 from data import database # 导入data.py中的类，这个文件名字取得不是很好，感觉容易误会成库
 import logger
-from utils import get_DB_PATH
+from utils import get_DB_PATH, load_config
 #from main import ID_NUM
 
 #ID_NUM = ID_NUM
@@ -215,6 +215,28 @@ class Special_MovieScraper:
 
 # TEST FINISH 
 # ! 由于zhipu_batch.py中调用出现问题，这个函数暂时弃用
+ID_NUM = 0
+
+# 将提示词单独拎出来做
+PROMPT = """
+    # 任务：对以下用户的电影短评评论进行观影情绪分类和观影评价标注，只输出结果。请根据我给你的观影情绪分类词建议和观影评价标注选词建议以及示例，依照格式输出。 \
+    # 观影情绪分类词建议：钦佩、崇拜、欣赏、娱乐、焦虑、敬畏、尴尬、厌倦、冷静、困惑、渴望、厌恶、痛苦、着迷、嫉妒、兴奋、恐惧、痛恨、有趣、快乐、怀旧、浪漫、悲伤、满意、性欲、同情、满足、愉悦等。 \
+    # 观影评价标注选词建议：导演：执导得当、导演功力深厚、导演手法独特；演员：演技精湛、表演自然、角色诠释到位；镜头：镜头运用巧妙、镜头切换流畅、镜头构图新颖；摄影：摄影角度独特、画面质感出色、摄影手法精湛；剧情：剧情紧凑、情节跌宕起伏、剧情发展合理；线索：线索设计巧妙、线索铺陈自然、线索逻辑清晰；环境：环境营造恰到好处、场景布置精心、环境氛围感强烈；色彩：色彩搭配和谐、色彩运用巧妙、色彩表现丰富；光线：光线处理恰到好处、光线效果炫目、光线照射角度合理；视听语言：视听语言独具匠心、声音效果震撼、音乐配合恰到好处；道具作用：道具运用恰到好处、道具设计别具匠心、道具作用明显；转场：转场处理流畅、转场设计巧妙、转场效果引人入胜；剪辑：剪辑节奏紧凑、剪辑处理精湛、剪辑效果出色 等等。 \
+    # 例如：\
+    - 评论：review = \"情节相当悬疑，叙事很流畅，导演功力深厚，真不愧是诺兰，简直就是完美之作。\" \
+    - 输出格式：\
+    {{ \
+        \"情绪分类标签\": \"愉悦 赞赏\", \ 
+        \"观影评价标注\": \"紧扣剧情 叙事流畅 大导演\" \ 
+    }} \
+    # 评论：review = \"{comment_text}\" \
+    # 输出格式： \
+    {{ \
+        \"情绪分类标签\": \" \", \
+        \"观影评价标注\": \" \" \
+    }}
+"""
+
 def data2jsonl(comment_text: str) -> None:
     """
     将评论数据存储为jsonl格式
@@ -257,16 +279,9 @@ def data2jsonl(comment_text: str) -> None:
             "model": "glm-4",
             "messages": [
                 {"role": "system", "content": "你是一个针对电影评论的意图分类器"},
-                {"role": "user", "content":
-                "# 任务：对以下用户的电影短评评论进行观影情绪分类和观影评价标注，只输出结果" +
-                "- 评论：review = \"情节相当悬疑，叙事很流畅，导演功力深厚，真不愧是诺兰，简直就是完美之作。\"" +
-                "- 输出格式：" +
-                "{\"情绪分类标签\": \"愉悦 赞赏\", \"观影评价标注\": \"紧扣剧情 叙事流畅 大导演\"}" +
-                f"# 评论：review = \"{comment_text}\"" +
-                "# 输出格式：" +
-                "{\"情绪分类标签\": \" \", \"观影评价标注\": \" \"}"
-                }
+                {"role": "user", "content": PROMPT.format(comment_text=comment_text)}
             ]
+
         },
         "temperature": 0.1
     }
@@ -274,7 +289,7 @@ def data2jsonl(comment_text: str) -> None:
     log = logger.init_logger()
     try:
         # ! 这里记得修改以下路径
-        with open('test_comment3.jsonl', 'a', encoding='utf-8') as f:
+        with open('test_comment4.jsonl', 'a', encoding='utf-8') as f:
             # 依照jsonl格式写入数据
             json.dump(data, f, ensure_ascii=False)
             f.write('\n')

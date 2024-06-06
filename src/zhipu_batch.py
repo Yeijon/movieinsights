@@ -20,7 +20,7 @@ def batch_task(api_key:str):
     # 上传文件，获取id
     # ! 注意，这里的路径要和data2jsonl存入的文件路径一致
     result = client.files.create(
-        file=open(file='test_comment3.jsonl', mode='rb'),
+        file=open(file='test_comment4.jsonl', mode='rb'),
         purpose="batch"
     )
     
