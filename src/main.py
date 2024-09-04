@@ -6,7 +6,7 @@ from scraper import *
 from gui import init_gui
 import graph
 from data import *
-from utils import load_config, get_DB_PATH, get_movie_info, draw_wordcloud
+from utils import load_config, get_DB_PATH, get_movie_info, draw_wordcloud, add_to_list
 from zhipu_batch import batch_task, batch_download
 
 # *----------------------------------- 常量 -----------------------------------* #
@@ -73,9 +73,24 @@ def draw():
   required=False,
   help="AI will be automatically used to annotate and generate word cloud diagrams. (Model: GLM-4[Batch API -- zhipu.ai])"
 )
+@click.option(
+  '--add',
+  type=bool,
+  default=False,
+  required=False,
+  help="Add the movie to the list."
+
+)
+@click.option(
+  '--comments_num',
+  type=int,
+  default=10,
+  required=False,
+  help="Number of comments(=comments_num*20) to be crawled."
+)
 @click.argument('movie_name', type=str, required=True, nargs=1)
 #@click.pass_context
-def search(movie_name:str, requestai: Optional[bool] = False):
+def search(movie_name:str, requestai: Optional[bool] = False, add: Optional[bool] = False, comments_num: Optional[int] = 10):
   # TODO: 从数据库中查询是否存在该电影
   mydatabase = database(get_DB_PATH())
   result = mydatabase.select(name=movie_name)
@@ -86,9 +101,14 @@ def search(movie_name:str, requestai: Optional[bool] = False):
   if result:
     get_movie_info(result)
 
+    if add:
+      add_to_list(result)
+      console.print(f"\n\t[bold green]电影[/bold green]: {movie_name} 已添加到清单中\n")
+    else:
+      pass
+      
     if requestai:
-
-      mymoviescraper = Special_MovieScraper(movie_name=movie_name, header=config['header'])
+      mymoviescraper = Special_MovieScraper(movie_name=movie_name, header=config['header'], num=comments_num)
       mymoviescraper.run_scraper()
       # 调用zhipu的api
       # TEST
@@ -106,7 +126,7 @@ def search(movie_name:str, requestai: Optional[bool] = False):
       with open(f'../share/{movie_name}_comment.txt', 'w', encoding='utf-8') as f:
         f.write(f'{movie_name}的评论\n')
         f.close()
-      mymoviescraper = Special_MovieScraper(movie_name=movie_name, header=config['header'])
+      mymoviescraper = Special_MovieScraper(movie_name=movie_name, header=config['header'], num=comments_num)
       mymoviescraper.run_scraper()
 
       # TODO： 从test_comment.txt中提取，生成词云图 FINISH

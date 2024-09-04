@@ -1,0 +1,64 @@
+digraph G {
+concentrate=true;
+splines="ortho";
+rankdir="LR";
+subgraph legend{
+    rank = min;
+    label = "legend";
+    Legend [shape=none, margin=0, label = <
+        <table cellspacing="0" cellpadding="0" border="1"><tr><td>Code2flow Legend</td></tr><tr><td>
+        <table cellspacing="0">
+        <tr><td>Regular function</td><td width="50px" bgcolor='#cccccc'></td></tr>
+        <tr><td>Trunk function (nothing calls this)</td><td bgcolor='#966F33'></td></tr>
+        <tr><td>Leaf function (this calls nothing else)</td><td bgcolor='#6db33f'></td></tr>
+        <tr><td>Function call</td><td><font color='black'>&#8594;</font></td></tr>
+        </table></td></tr></table>
+        >];
+}node_144c234b [label="107: dissect_html()" name="scraper::Douban_MovieScraper.dissect_html" shape="rect" style="rounded,filled" fillcolor="#cccccc" ];
+node_d970032f [label="90: dissect_text()" name="scraper::Douban_MovieScraper.dissect_text" shape="rect" style="rounded,filled" fillcolor="#6db33f" ];
+node_7726f431 [label="39: generate_url()" name="scraper::Douban_MovieScraper.generate_url" shape="rect" style="rounded,filled" fillcolor="#6db33f" ];
+node_7230a779 [label="43: parse_item()" name="scraper::Douban_MovieScraper.parse_item" shape="rect" style="rounded,filled" fillcolor="#cccccc" ];
+node_5062f207 [label="122: request_web()" name="scraper::Douban_MovieScraper.request_web" shape="rect" style="rounded,filled" fillcolor="#6db33f" ];
+node_9db28659 [label="130: run_scraper()" name="scraper::Douban_MovieScraper.run_scraper" shape="rect" style="rounded,filled" fillcolor="#966F33" ];
+node_3a0866f0 [label="190: dissect_html()" name="scraper::Special_MovieScraper.dissect_html" shape="rect" style="rounded,filled" fillcolor="#cccccc" ];
+node_ab15367d [label="149: fatch_data()" name="scraper::Special_MovieScraper.fatch_data" shape="rect" style="rounded,filled" fillcolor="#6db33f" ];
+node_a87f370f [label="158: generate_url()" name="scraper::Special_MovieScraper.generate_url" shape="rect" style="rounded,filled" fillcolor="#cccccc" ];
+node_cb1462c5 [label="180: parse_comment()" name="scraper::Special_MovieScraper.parse_comment" shape="rect" style="rounded,filled" fillcolor="#6db33f" ];
+node_0ed50000 [label="166: request_web()" name="scraper::Special_MovieScraper.request_web" shape="rect" style="rounded,filled" fillcolor="#6db33f" ];
+node_d42154cd [label="205: run_scraper()" name="scraper::Special_MovieScraper.run_scraper" shape="rect" style="rounded,filled" fillcolor="#966F33" ];
+node_b320621f [label="338: data2txt()" name="scraper::data2txt" shape="rect" style="rounded,filled" fillcolor="#6db33f" ];
+node_8d66c65b [label="22: storeData()" name="scraper::storeData" shape="rect" style="rounded,filled" fillcolor="#6db33f" ];
+node_144c234b -> node_7230a779 [color="#009E73" penwidth="2"];
+node_144c234b -> node_8d66c65b [color="#009E73" penwidth="2"];
+node_7230a779 -> node_d970032f [color="#E69F00" penwidth="2"];
+node_9db28659 -> node_144c234b [color="#E69F00" penwidth="2"];
+node_9db28659 -> node_7726f431 [color="#E69F00" penwidth="2"];
+node_9db28659 -> node_5062f207 [color="#E69F00" penwidth="2"];
+node_3a0866f0 -> node_cb1462c5 [color="#000000" penwidth="2"];
+node_3a0866f0 -> node_b320621f [color="#000000" penwidth="2"];
+node_a87f370f -> node_ab15367d [color="#CC79A7" penwidth="2"];
+node_d42154cd -> node_3a0866f0 [color="#0072B2" penwidth="2"];
+node_d42154cd -> node_a87f370f [color="#0072B2" penwidth="2"];
+node_d42154cd -> node_0ed50000 [color="#0072B2" penwidth="2"];
+subgraph cluster_f48d2c30 {
+    node_8d66c65b node_b320621f;
+    label="File: scraper";
+    name="scraper";
+    style="filled";
+    graph[style=dotted];
+    subgraph cluster_49761a57 {
+        node_7726f431 node_7230a779 node_d970032f node_144c234b node_5062f207 node_9db28659;
+        label="Class: Douban_MovieScraper";
+        name="Douban_MovieScraper";
+        style="filled";
+        graph[style=dotted];
+    };
+    subgraph cluster_5b07b9d9 {
+        node_ab15367d node_a87f370f node_0ed50000 node_cb1462c5 node_3a0866f0 node_d42154cd;
+        label="Class: Special_MovieScraper";
+        name="Special_MovieScraper";
+        style="filled";
+        graph[style=dotted];
+    };
+};
+}

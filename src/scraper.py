@@ -137,13 +137,13 @@ class Douban_MovieScraper:
             soup = bs(html_content, 'lxml')
             self.dissect_html(soup)
 
-
 # TODO: 编写爬虫电影短片的类 FINISH
 class Special_MovieScraper:
-    def __init__(self, movie_name, header):
-        # TODO: 从命令行传过来
+    def __init__(self, movie_name, header, num):
+        # TODO: 从命令行传过来 FINISH
         self.movie_name = movie_name
         self.headers = header
+        self.num = num
 
     # * 是否存在数据库中，从命令行传过来
     def fatch_data(self):
@@ -158,7 +158,7 @@ class Special_MovieScraper:
     def generate_url(self):
         base_url = self.fatch_data()
         # 抓取前n页的评论，每页20条评论
-        n = 5
+        n = self.num
 
         return [base_url + f"comments?start={page * 20}&limit=20&status=P&sort=new_score" \
                 for page in range(0, n)]
@@ -201,7 +201,6 @@ class Special_MovieScraper:
                 #data2jsonl(result)
                 data2txt(result, self.movie_name)
         return None
-
 
     def run_scraper(self):
         urls = self.generate_url()
