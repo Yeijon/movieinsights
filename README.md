@@ -2,6 +2,10 @@
 
 > 见word文档有使用说明书
 
+待进一步学习的点：
+- python setup.cfg/poetry等工具流的的使用
+- 进一步深入了解python的高级用法
+
 ## Develop Process
 
 TODO: 
@@ -57,8 +61,6 @@ python main.py --requestAI search "your movie"
 python main.py --analyze scrape
 
 ```
-
-
 
 TEST:
 - [x] 数据连接测试：爬虫后，连接数据库
